@@ -1,0 +1,8 @@
+---
+# defaults file for ossec-agent-windows
+#
+ossec_agent_windows_client_key: 'xxxxxxxxxxxxxxxxxxxxxx'
+ossec_agent_windows_server: '172.31.45.159'
+ossec_agent_windows_url: 'https://github.com/ossec/ossec-hids/releases/download/v2.7.1/ossec-agent-win32-2.7.1.exe'
+ossec_agent_windows_file: 'ossec-agent-win32-2.7.1.exe'
+#ossec_agent_windows_file: 'https://github.com/ossec/ossec-hids/releases/download/v2.8.0/ossec-agent-win32-2.8.exe'

@@ -1,0 +1,58 @@
+---
+# tasks file for ossec-agent-windows
+- name: Create directory temp
+  win_file:
+    path: C:\temp
+    state: directory        
+
+#- name: Copy ossec agent file
+#  win_copy:
+#    src: 'files/{{ ossec_agent_windows_file }}'
+#    dest: 'c:\temp\{{ ossec_agent_windows_file }}'
+
+- name: Download ossec agent file
+  win_get_url:
+    url: '{{ ossec_agent_windows_url }}'
+    dest: 'c:\temp\{{ ossec_agent_windows_file }}'
+
+- name: install ossec agent
+  win_command: 'C:\temp\{{ ossec_agent_windows_file }} /S'
+  args:
+    executable: cmd
+    creates: 'c:\Program Files (x86)\ossec-agent'
+  register: agent_install
+
+- name: debug client install
+  debug:
+    msg: "{{ agent_install.stdout }}"
+  when: agent_install.stdout is defined
+
+- name: set client key
+  win_shell: 'echo y | "c:\Program Files (x86)\ossec-agent\manage_agents.exe" -i  {{ ossec_agent_windows_client_key }}'
+  args:
+    executable: cmd
+    chdir: 'c:\Program Files (x86)\ossec-agent'
+  register: client_key_install
+  ignore_errors: yes
+
+
+- debug:
+    msg: "{{ client_key_install.stdout }}"
+  
+
+- name: Copy ossec.conf file
+  win_copy:
+    src: files/ossec.conf
+    dest: 'c:\Program Files (x86)\ossec-agent\ossec.conf' 
+
+- name: set ossec server ip        
+  win_lineinfile:
+    path: 'c:\Program Files (x86)\ossec-agent\ossec.conf' 
+    regexp: '^.*<server-ip>'
+    line: '      <server-ip>{{ ossec_agent_windows_server }}</server-ip>'
+
+- name: start ossec agent
+  win_service:
+    name: OssecSvc
+    start_mode: auto
+    state: started        
